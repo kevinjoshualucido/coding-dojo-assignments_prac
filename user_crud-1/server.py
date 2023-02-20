@@ -1,0 +1,53 @@
+from flask import Flask, render_template, redirect, request
+from users import User
+app = Flask(__name__)
+
+
+@app.route("/")
+def index():
+    users = User.show_all()
+    return render_template("read_all.html", users=users)
+
+
+@app.route("/create_user", methods=["POST"])
+def create_user():
+    data = {
+        "first_name": request.form["fname"],
+        "last_name": request.form["lname"],
+        "email": request.form["email"],
+    }
+    User.create_user(data)
+    return redirect("/")
+
+
+@app.route("/create_user/new")
+def add_user():
+    return render_template("create.html")
+
+
+@app.route("/user/show/<int:id>")
+def show_user(id):
+    user = User.show_one(id)
+    return render_template("read_one.html", user=user)
+
+
+@app.route("/user/<int:id>/edit")
+def edit_user(id):
+    user = User.show_one(id)
+    return render_template("edit.html", user=user)
+
+
+@app.route("/user/update", methods=["POST"])
+def update_user():
+    User.update_user(request.form)
+    return redirect("/")
+
+
+@app.route("/delete/<int:id>")
+def delete_user(id):
+    User.delete_user(id)
+    return redirect("/")
+
+
+if __name__ == "__main__":
+    app.run(debug=True, port=8000)
